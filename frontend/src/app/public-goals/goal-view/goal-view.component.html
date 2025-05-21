@@ -1,0 +1,35 @@
+<div class="container py-4">
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !goal" class="alert alert-danger text-center">
+    Goal not found.
+  </div>
+
+  <div *ngIf="goal">
+    <h2 class="mb-3">{{ goal.title }}</h2>
+    <p class="lead">{{ goal.description || 'No description provided.' }}</p>
+    <p><strong>Created:</strong> {{ goal.createdAt | date: 'medium' }}</p>
+    <p *ngIf="goal.deadline"><strong>Deadline:</strong> {{ goal.deadline | date: 'mediumDate' }}</p>
+
+    <div *ngIf="goal.children?.length" class="mt-4">
+      <h5>Sub Goals:</h5>
+      <ul class="list-group">
+        <li *ngFor="let child of goal.children" class="list-group-item">
+          <strong>{{ child.title }}</strong>
+          <div *ngIf="child.children?.length" class="ms-3 mt-2">
+            <small>Sub-sub Goals:</small>
+            <ul>
+              <li *ngFor="let subChild of child.children">
+                {{ subChild.title }}
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

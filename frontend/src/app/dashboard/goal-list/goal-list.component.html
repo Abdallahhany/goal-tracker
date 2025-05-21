@@ -1,0 +1,262 @@
+<!-- Parent goals drop list -->
+<div
+  cdkDropList
+  [cdkDropListData]="goals"
+  (cdkDropListDropped)="drop($event, goals)"
+  class="list-group p-2"
+>
+  <ng-container *ngFor="let goal of goals; let i = index">
+    <div
+      cdkDrag
+      class="list-group-item mb-2 p-3 rounded shadow-sm bg-white"
+    >
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-bold">{{ goal.title }}</div>
+          <div class="mt-1 d-flex align-items-center flex-wrap gap-2">
+            <span class="badge bg-info text-dark" *ngIf="goal.isPublic">Public</span>
+            <span class="badge bg-secondary text-light" *ngIf="!goal.isPublic">Private</span>
+            <span class="badge bg-success" *ngIf="goal.completed">Completed</span>
+            <span class="badge bg-warning text-dark" *ngIf="!goal.completed">In Progress</span>
+            <span class="badge bg-light text-dark">
+              <i class="bi bi-calendar-event"></i>
+              {{ goal.deadline | date : "mediumDate" }}
+            </span>
+
+            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Goal actions">
+              <button
+                type="button"
+                class="btn btn-outline-success"
+                (click)="toggleCompleted(goal)"
+                [title]="goal.completed ? 'Mark as not completed' : 'Mark as completed'"
+              >
+                {{ goal.completed ? "Undo" : "Complete" }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                (click)="toggleVisibility(goal)"
+                [title]="goal.isPublic ? 'Make Private' : 'Make Public'"
+              >
+                {{ goal.isPublic ? "Private" : "Public" }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                (click)="deleteGoal(goal)"
+                [title]="'Delete goal'"
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-success"
+                (click)="openGoalForm(goal)"
+                title="Add Subgoal"
+              >
+                Add Subgoal
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="openGoalForm(goal, true)"
+                title="Edit Goal"
+              >
+                Edit Goal
+              </button>
+            </div>
+          </div>
+          <small class="text-muted d-block mt-2">{{ goal.description }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Children rendered below parent -->
+    <div *ngIf="goal.children?.length" class="mb-3" style="margin-left: 20px;">
+      <div
+        cdkDropList
+        [cdkDropListData]="goal.children || []"
+        (cdkDropListDropped)="drop($event, goal.children || [])"
+        class="list-group"
+      >
+        <ng-container *ngFor="let child of goal.children">
+          <div
+            cdkDrag
+            class="list-group-item mb-2 p-2 rounded bg-light border-left border-3 border-secondary"
+          >
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-bold">{{ child.title }}</div>
+                <div class="mt-1 d-flex align-items-center flex-wrap gap-2">
+                  <span class="badge bg-info text-dark" *ngIf="child.isPublic">Public</span>
+                  <span class="badge bg-secondary text-light" *ngIf="!child.isPublic">Private</span>
+                  <span class="badge bg-success" *ngIf="child.completed">Completed</span>
+                  <span class="badge bg-warning text-dark" *ngIf="!child.completed">In Progress</span>
+                  <span class="badge bg-light text-dark">
+                    <i class="bi bi-calendar-event"></i>
+                    {{ child.deadline | date : "mediumDate" }}
+                  </span>
+
+                  <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Goal actions">
+                    <button
+                      type="button"
+                      class="btn btn-outline-success"
+                      (click)="toggleCompleted(child)"
+                      [title]="child.completed ? 'Mark as not completed' : 'Mark as completed'"
+                    >
+                      {{ child.completed ? "Undo" : "Complete" }}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary"
+                      (click)="toggleVisibility(child)"
+                      [title]="child.isPublic ? 'Make Private' : 'Make Public'"
+                    >
+                      {{ child.isPublic ? "Private" : "Public" }}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger"
+                      (click)="deleteGoal(child)"
+                      [title]="'Delete child goal'"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-success"
+                      (click)="openGoalForm(child)"
+                      title="Add Subgoal"
+                    >
+                      Add Subgoal
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="openGoalForm(child, true)"
+                      title="Edit Goal"
+                    >
+                      Edit Goal
+                    </button>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-2">{{ child.description }}</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subchildren rendered below child -->
+          <div *ngIf="child.children?.length" class="mb-2" style="margin-left: 20px;">
+            <div
+              cdkDropList
+              [cdkDropListData]="child.children || []"
+              (cdkDropListDropped)="drop($event, child.children || [])"
+              class="list-group"
+            >
+              <ng-container *ngFor="let subchild of child.children">
+                <div
+                  cdkDrag
+                  class="list-group-item mb-1 p-1 rounded bg-white border-left border-2 border-info"
+                >
+                  <div>
+                    <div class="fw-bold">{{ subchild.title }}</div>
+                    <div class="mt-1 d-flex align-items-center flex-wrap gap-2">
+                      <span class="badge bg-info text-dark" *ngIf="subchild.isPublic">Public</span>
+                      <span class="badge bg-secondary text-light" *ngIf="!subchild.isPublic">Private</span>
+                      <span class="badge bg-success" *ngIf="subchild.completed">Completed</span>
+                      <span class="badge bg-warning text-dark" *ngIf="!subchild.completed">In Progress</span>
+                      <span class="badge bg-light text-dark">
+                        <i class="bi bi-calendar-event"></i>
+                        {{ subchild.deadline | date : "mediumDate" }}
+                      </span>
+
+                      <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Goal actions">
+                        <button
+                          type="button"
+                          class="btn btn-outline-success"
+                          (click)="toggleCompleted(subchild)"
+                          [title]="subchild.completed ? 'Mark as not completed' : 'Mark as completed'"
+                        >
+                          {{ subchild.completed ? "Undo" : "Complete" }}
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-outline-primary"
+                          (click)="toggleVisibility(subchild)"
+                          [title]="subchild.isPublic ? 'Make Private' : 'Make Public'"
+                        >
+                          {{ subchild.isPublic ? "Private" : "Public" }}
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger"
+                          (click)="deleteGoal(subchild)"
+                          [title]="'Delete child goal'"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          (click)="openGoalForm(subchild, true)"
+                          title="Edit Goal"
+                        >
+                          Edit Goal
+                        </button>
+                      </div>
+                    </div>
+                    <small class="text-muted d-block mt-2">{{ subchild.description }}</small>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<div *ngIf="showGoalForm" class="card p-3 mb-4">
+  <h5>
+    {{ editingGoal ? "Edit Goal" : currentParentId ? "Add Subgoal" : "Add Goal" }}
+  </h5>
+  <form (ngSubmit)="submitGoalForm()">
+    <input
+      type="text"
+      [(ngModel)]="goalForm.title"
+      name="title"
+      placeholder="Title"
+      required
+      class="form-control mb-2"
+    />
+    <textarea
+      [(ngModel)]="goalForm.description"
+      name="description"
+      placeholder="Description"
+      class="form-control mb-2"
+    ></textarea>
+    <input
+      type="date"
+      [(ngModel)]="goalForm.deadline"
+      name="deadline"
+      class="form-control mb-2"
+    />
+    <div class="form-check mb-2">
+      <input
+        type="checkbox"
+        [(ngModel)]="goalForm.isPublic"
+        name="isPublic"
+        class="form-check-input"
+        id="publicCheck"
+      />
+      <label class="form-check-label" for="publicCheck">Public</label>
+    </div>
+    <button type="submit" class="btn btn-primary">
+      {{ editingGoal ? "Save" : "Add" }}
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="cancelGoalForm()">
+      Cancel
+    </button>
+  </form>
+</div>
